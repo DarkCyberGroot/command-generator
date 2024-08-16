@@ -1,4 +1,5 @@
 DarkCyberGroot Command Generator
+
 <img width="641" alt="command line-generator" src="https://github.com/user-attachments/assets/2e83484f-b5f8-4e98-a450-cebbc3d6dcc1">
 
 Overview
@@ -17,6 +18,7 @@ Generate Commands: Once a tool is selected, a second dropdown will populate with
 Copy Command: Select the desired command, and it will be displayed in the output box. You can now copy it for use.
 
 Example Usage
+
 <img width="641" alt="command line-generator live" src="https://github.com/user-attachments/assets/6446ad2a-5df3-401d-ab7f-90d1ac566755">
 
 Nmap Scan Example:
