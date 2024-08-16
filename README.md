@@ -13,7 +13,7 @@
 <img width="641" alt="command line-generator live" src="https://github.com/user-attachments/assets/6446ad2a-5df3-401d-ab7f-90d1ac566755"
 
 
-## 🚀 Installation
+- 🚀 Installation
 
 Clone the repository and open the `index.html` file in your browser to start generating commands:
 
