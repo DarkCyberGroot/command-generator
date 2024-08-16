@@ -1,7 +1,3 @@
-
-
-
-
 🌟 DarkCyberGroot Command Generator
 
 DarkCyberGroot Command Generator is a powerful tool designed to help you generate commands for popular penetration testing tools quickly and efficiently.
@@ -21,6 +17,7 @@ Copy code
 git clone https://github.com/YourUsername/DarkCyberGroot-Command-Generator.git
 cd DarkCyberGroot-Command-Generator
 open index.html
+
 Usage
 Enter Target Information: Input the IP address or URL of the target.
 Select a Tool: Choose the tool from the dropdown menu.
