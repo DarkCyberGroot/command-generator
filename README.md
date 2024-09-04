@@ -9,8 +9,8 @@
 - 🛠️ **Dynamic Command Generation:** Generate commands tailored to your target IP or URL for tools like Nmap, Nikto, Gobuster, and more.
 - 🚀 **Quick and Easy to Use:** Enter your target, select a tool, and get your command instantly.
 
-<img width="641" alt="command line-generator" src="https://github.com/user-attachments/assets/2e83484f-b5f8-4e98-a450-cebbc3d6dcc1">
-<img width="641" alt="command line-generator live" src="https://github.com/user-attachments/assets/6446ad2a-5df3-401d-ab7f-90d1ac566755"
+
+<img width="640" alt="cmd gen" src="https://github.com/user-attachments/assets/687196e0-592a-4b19-9265-b31cc00b5a90">
 
 
 - 🚀 Installation
